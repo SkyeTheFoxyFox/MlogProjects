@@ -1,0 +1,51 @@
+sensor forward switch1 @enabled
+sensor left switch2 @enabled
+sensor right switch3 @enabled
+
+setrate 500
+
+set playerData cell1
+set settings cell2
+
+read displaySize settings 0
+op div halfDisplay displaySize 2
+
+read playerDead playerData 3
+
+jump PlayerAlive equal playerDead 0
+
+set dx 0
+set dy 0
+set x halfDisplay
+set y halfDisplay
+
+PlayerAlive:
+
+op mul left left .25
+op mul right right .25
+
+op add ang ang left 
+op sub ang ang right
+
+op cos ddx ang
+op sin ddy ang 
+op mul ddx ddx .00003
+op mul ddy ddy .00003
+op mul ddx ddx forward
+op mul ddy ddy forward
+
+op add dx dx ddx
+op add dy dy ddy
+
+op add x x dx
+op add y y dy
+
+op add xt x displaySize
+op add yt y displaySize
+
+op mod x xt displaySize
+op mod y yt displaySize
+
+write x playerData 0
+write y playerData 1
+write ang playerData 2

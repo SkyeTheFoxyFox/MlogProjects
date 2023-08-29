@@ -1,0 +1,178 @@
+set xoffset 0
+set yoffset 0
+set zoffset 0.5
+
+set renderSize 176
+set displaySize 176
+
+
+setrate 10000
+
+op sub displaySizeFrom0 displaySize 1
+
+op add anglex anglex 0.25
+op mod anglex anglex 360 
+
+op add angley angley 0.25
+op mod angley angley 360 
+
+op sin sinax anglex
+op cos cosax anglex
+op sub -sinax 0 sinax
+
+op sin sinay angley
+op cos cosay angley
+op sub -sinay 0 sinay
+
+
+draw clear 0 0 0
+
+
+Loop:
+	
+	read x bank1 i
+	read y bank2 i
+	read z bank3 i
+	
+	op mul ztemp sinax z
+	op mul xtemp cosax x
+	op add x2 ztemp xtemp
+	
+	op mul ztemp cosax z
+	op mul xtemp -sinax x
+	op add z ztemp xtemp
+	
+	op mul ztemp sinay z
+	op mul ytemp cosay y
+	op add y2 ztemp ytemp
+	
+	op mul ztemp cosay z
+	op mul ytemp -sinay y
+	op add z ztemp ytemp
+	
+	op add x x2 xoffset
+	op add y y2 yoffset
+	op add z z zoffset
+	
+	op add z z 1
+	
+	op div xscreen x z
+	op div yscreen y z 
+	
+	read 2x bank4 i
+	read 2y bank5 i
+	read 2z bank6 i
+	
+	op mul ztemp sinax 2z
+	op mul xtemp cosax 2x
+	op add 2x2 ztemp xtemp
+	
+	op mul ztemp cosax 2z
+	op mul xtemp -sinax 2x
+	op add 2z ztemp xtemp
+	
+	op mul ztemp sinay 2z
+	op mul ytemp cosay 2y
+	op add 2y2 ztemp ytemp
+	
+	op mul ztemp cosay 2z
+	op mul ytemp -sinay 2y
+	op add 2z ztemp ytemp
+	
+	op add 2x 2x2 xoffset
+	op add 2y 2y2 yoffset
+	op add 2z 2z zoffset
+	
+	op add 2z 2z 1
+	
+	op div 2xscreen 2x 2z
+	op div 2yscreen 2y 2z 
+	
+	op add xscreen xscreen .5
+	op add yscreen yscreen .5
+	
+	op add 2xscreen 2xscreen .5
+	op add 2yscreen 2yscreen .5
+	
+	op mul xscreen xscreen renderSize
+	op mul yscreen yscreen renderSize
+	
+	op mul 2xscreen 2xscreen renderSize
+	op mul 2yscreen 2yscreen renderSize
+	
+	op sub xtemp 2xscreen xscreen
+	op sub ytemp 2yscreen yscreen
+	
+	op div xm ytemp xtemp
+	op div ym xtemp ytemp
+	
+	op add strokeZ z 2z
+	op div strokeZ strokeZ 2
+	op sub strokeZ strokeZ 2.5
+	op mul strokeZ strokeZ -3
+
+	jump Point1InBoundsTop lessThan yscreen displaySizeFrom0
+		op sub temp displaySizeFrom0 yscreen
+		op mul temp ym temp
+		op add xscreen temp xscreen
+		set yscreen displaySizeFrom0
+	Point1InBoundsTop:
+	jump Point1InBoundsBottom greaterThan yscreen 0
+		op sub temp 0 yscreen
+		op mul temp ym temp
+		op add xscreen temp xscreen
+		set yscreen 0
+	Point1InBoundsBottom:
+	jump Point1InBoundsRight lessThan xscreen displaySizeFrom0
+		op sub temp displaySizeFrom0 xscreen
+		op mul temp xm temp
+		op add yscreen temp yscreen
+		set xscreen displaySizeFrom0
+	Point1InBoundsRight:
+	jump Point1InBoundsLeft greaterThan xscreen 0
+		op sub temp 0 xscreen
+		op mul temp xm temp
+		op add yscreen temp yscreen
+		set xscreen 0
+	Point1InBoundsLeft:
+	
+	
+	jump Point2InBoundsTop lessThan 2yscreen displaySizeFrom0
+		op sub temp displaySizeFrom0 2yscreen
+		op mul temp ym temp
+		op add 2xscreen temp 2xscreen
+		set 2yscreen displaySizeFrom0
+	Point2InBoundsTop:
+	jump Point2InBoundsBottom greaterThan 2yscreen 0
+		op sub temp 0 2yscreen
+		op mul temp ym temp
+		op add 2xscreen temp 2xscreen
+		set 2yscreen 0
+	Point2InBoundsBottom:
+	jump Point2InBoundsRight lessThan 2xscreen displaySizeFrom0
+		op sub temp displaySizeFrom0 2xscreen
+		op mul temp xm temp
+		op add 2yscreen temp 2yscreen
+		set 2xscreen displaySizeFrom0
+	Point2InBoundsRight:
+	jump Point2InBoundsLeft greaterThan 2xscreen 0
+		op sub temp 0 2xscreen
+		op mul temp xm temp
+		op add 2yscreen temp 2yscreen
+		set 2xscreen 0
+	Point2InBoundsLeft:
+	
+	draw stroke strokeZ
+	draw line xscreen yscreen 2xscreen 2yscreen
+	
+	write xscreen bank7 i
+	write yscreen bank8 i
+	write 2xscreen bank9 i
+	write 2yscreen bank10 i
+	
+op add i i 1
+jump Loop lessThan i 128
+set i 0 
+
+drawflush display1
+

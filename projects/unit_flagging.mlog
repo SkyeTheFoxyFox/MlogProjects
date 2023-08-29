@@ -1,0 +1,80 @@
+set UNIT_TYPE @horizon
+
+set UNIT_COUNT 4
+
+op mul UNIT_FLAG @thisx @maph
+op add UNIT_FLAG UNIT_FLAG @thisy
+
+Start:
+
+ubind UNIT_TYPE
+set storedUnit @unit
+set unitCount 0
+CountLoop:
+	sensor unitFlag @unit @flag
+	op equal unitFlagCheck unitFlag UNIT_FLAG
+	op add unitCount unitCount unitFlagCheck
+
+	sensor unitDeadCheck storedUnit @dead
+	jump Start equal unitDeadCheck true
+
+	ubind UNIT_TYPE
+jump CountLoop notEqual @unit storedUnit
+
+op sub unitCount UNIT_COUNT unitCount
+
+ubind UNIT_TYPE
+set storedUnit @unit
+
+jump FlagUnits greaterThan unitCount 0
+jump DeflagUnits lessThan unitCount 0
+jump NoFlag always
+
+FlagUnits:
+	ubind UNIT_TYPE
+
+	sensor unitDeadCheck storedUnit @dead
+	jump Start equal unitDeadCheck true
+
+	jump NoFlag strictEqual @unit storedUnit
+
+	sensor unitFlag @unit @flag
+
+	jump FlagUnits notEqual unitFlag 0
+
+	ucontrol flag UNIT_FLAG
+	op sub unitCount unitCount 1
+jump FlagUnits greaterThan unitCount 0
+jump NoFlag always
+
+DeflagUnits:
+	ubind UNIT_TYPE
+
+	sensor unitFlag @unit @flag
+
+	jump DeflagUnits notEqual unitFlag UNIT_FLAG
+
+	ucontrol flag 0
+	op add unitCount unitCount 1
+jump DeflagUnits lessThan unitCount 0
+
+NoFlag:
+
+ubind UNIT_TYPE
+set storedUnit @unit
+
+UnitLoop:
+	sensor unitFlag @unit @flag
+	jump SkipUnit notEqual unitFlag UNIT_FLAG
+
+		#some stuff
+		ucontrol move 100 100
+
+	SkipUnit:
+	sensor unitDeadCheck storedUnit @dead
+	jump Start equal unitDeadCheck true
+
+	ubind UNIT_TYPE
+jump UnitLoop notEqual @unit storedUnit
+
+jump Start always

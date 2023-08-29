@@ -1,0 +1,105 @@
+setrate 500
+
+set asteroidX cell1
+set asteroidY cell2
+set asteroidDX cell3
+set asteroidDY cell4
+set asteroidAngle cell5
+set asteroidSize cell6
+
+set bulletX cell7
+set bulletY cell8
+
+set playerData cell9
+
+set settings cell10
+
+read asteroidCount settings 1
+read bulletCount settings 2
+
+AsteroidLoop:
+	read targetAsteroidX asteroidX i
+	read targetAsteroidY asteroidY i
+	read targetAsteroidSize asteroidSize i
+	
+	jump SkipAsteroid lessThanEq targetAsteroidSize 0
+	
+	BulletLoop:
+		read targetBulletX bulletX j
+		read targetBulletY bulletY j
+		
+		op sub x targetAsteroidX targetBulletX
+		op sub y targetAsteroidY targetBulletY
+		op len dist x y
+		jump BulletCollision lessThan dist targetAsteroidSize
+		
+	op add j j 1
+	jump BulletLoop lessThan j bulletCount
+	jump BulletExit always
+	BulletCollision:
+		write -20 bulletX j
+		write -20 bulletY j
+		write 0 bulletDX j
+		write 0 bulletDY j
+		op sub size targetAsteroidSize 5
+		write size asteroidSize i
+		op rand dx .04
+		op rand dy .04
+		op sub dx dx .02
+		op sub dy dy .02
+		write dx asteroidDX i
+		write dy asteroidDY i
+		
+		read currentScore playerData 4
+		op pow scoreTemp targetAsteroidSize 2
+		op mul scoreTemp scoreTemp 0.4
+		op mul scoreTemp2 targetAsteroidSize 16
+		op sub scoreTemp scoreTemp scoreTemp2
+		op add scoreTemp scoreTemp 170
+		op add currentScore currentScore scoreTemp
+		write currentScore playerData 4
+		
+		CreateAsteroidLoop:
+			read checkAsteroidSize asteroidSize k
+			jump AsteroidFound equal checkAsteroidSize 0
+		op add k k 1
+		jump CreateAsteroidLoop lessThan k asteroidCount
+		jump NoAsteroid always
+		AsteroidFound:
+			write size asteroidSize k
+			op rand dx .04
+			op rand dy .04
+			op sub dx dx .02
+			op sub dy dy .02
+			write dx asteroidDX k
+			write dy asteroidDY k
+			write targetAsteroidX asteroidX k
+			write targetAsteroidY asteroidY k
+		NoAsteroid:
+		set k 0
+		
+	BulletExit:
+	set j 0
+	
+	op add timeSinceDeath timeSinceDeath 1
+	jump NoHit lessThan timeSinceDeath 2500
+	read playerX playerData 0
+	read playerY playerData 1
+	op sub x targetAsteroidX playerX
+	op sub y targetAsteroidY playerY
+	op len dist x y
+	jump NoHit greaterThanEq dist targetAsteroidSize
+	write true playerData 3
+	read playerLives playerData 5
+	op sub playerLives playerLives 1
+	write playerLives playerData 5
+	wait 5
+	set timeSinceDeath 0
+	write false playerData 3
+	NoHit:
+	
+SkipAsteroid:
+
+op add i i 1
+jump AsteroidLoop lessThan i asteroidCount
+set i 0

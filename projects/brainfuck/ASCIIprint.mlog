@@ -1,0 +1,523 @@
+StringLoop:
+read char cell1 i
+op mul char char 2
+op add @counter char 3
+
+print "" #null 
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "   " #tab
+jump End always
+print "\n" #new line
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print "" #no use
+jump End always
+print " " #Space
+jump End always
+print "!"
+jump End always
+print "''"
+jump End always
+print "#"
+jump End always
+print "$"
+jump End always
+print "%"
+jump End always
+print "&"
+jump End always
+print "'"
+jump End always
+print "("
+jump End always
+print ")"
+jump End always
+print "*"
+jump End always
+print "+"
+jump End always
+print ","
+jump End always
+print "-"
+jump End always
+print "."
+jump End always
+print "/"
+jump End always
+print "0"
+jump End always
+print "1"
+jump End always
+print "2"
+jump End always
+print "3"
+jump End always
+print "4"
+jump End always
+print "5"
+jump End always
+print "6"
+jump End always
+print "7"
+jump End always
+print "8"
+jump End always
+print "9"
+jump End always
+print ":"
+jump End always
+print ";"
+jump End always
+print "<"
+jump End always
+print "="
+jump End always
+print ">"
+jump End always
+print "?"
+jump End always
+print "@"
+jump End always
+print "A"
+jump End always
+print "B"
+jump End always
+print "C"
+jump End always
+print "D"
+jump End always
+print "E"
+jump End always
+print "F"
+jump End always
+print "G"
+jump End always
+print "H"
+jump End always
+print "I"
+jump End always
+print "J"
+jump End always
+print "K"
+jump End always
+print "L"
+jump End always
+print "M"
+jump End always
+print "N"
+jump End always
+print "O"
+jump End always
+print "P"
+jump End always
+print "Q"
+jump End always
+print "R"
+jump End always
+print "S"
+jump End always
+print "T"
+jump End always
+print "U"
+jump End always
+print "V"
+jump End always
+print "W"
+jump End always
+print "X"
+jump End always
+print "Y"
+jump End always
+print "Z"
+jump End always
+print "["
+jump End always
+print "\"
+jump End always
+print "]"
+jump End always
+print "^"
+jump End always
+print "_"
+jump End always
+print "`"
+jump End always
+print "a"
+jump End always
+print "b"
+jump End always
+print "c"
+jump End always
+print "d"
+jump End always
+print "e"
+jump End always
+print "f"
+jump End always
+print "g"
+jump End always
+print "h"
+jump End always
+print "i"
+jump End always
+print "j"
+jump End always
+print "k"
+jump End always
+print "l"
+jump End always
+print "m"
+jump End always
+print "n"
+jump End always
+print "o"
+jump End always
+print "p"
+jump End always
+print "q"
+jump End always
+print "r"
+jump End always
+print "s"
+jump End always
+print "t"
+jump End always
+print "u"
+jump End always
+print "v"
+jump End always
+print "w"
+jump End always
+print "x"
+jump End always
+print "y"
+jump End always
+print "z"
+jump End always
+print "{"
+jump End always
+print "|"
+jump End always
+print "}"
+jump End always
+print "~"
+jump End always
+print "" # no use
+jump End always
+print "Ç"
+jump End always
+print "ü"
+jump End always
+print "é"
+jump End always
+print "â"
+jump End always
+print "ä"
+jump End always
+print "à"
+jump End always
+print "å"
+jump End always
+print "ç"
+jump End always
+print "ê"
+jump End always
+print "ë"
+jump End always
+print "è"
+jump End always
+print "ï"
+jump End always
+print "î"
+jump End always
+print "ì"
+jump End always
+print "Ä"
+jump End always
+print "Å"
+jump End always
+print "É"
+jump End always
+print "æ"
+jump End always
+print "Æ"
+jump End always
+print "ô"
+jump End always
+print "ö"
+jump End always
+print "ò"
+jump End always
+print "û"
+jump End always
+print "ù"
+jump End always
+print "ÿ"
+jump End always
+print "Ö"
+jump End always
+print "Ü"
+jump End always
+print "ø"
+jump End always
+print "£"
+jump End always
+print "Ø"
+jump End always
+print "×"
+jump End always
+print "ƒ"
+jump End always
+print "á"
+jump End always
+print "í"
+jump End always
+print "ó"
+jump End always
+print "ú"
+jump End always
+print "ñ"
+jump End always
+print "Ñ"
+jump End always
+print "ª"
+jump End always
+print "º"
+jump End always
+print "¿"
+jump End always
+print "®"
+jump End always
+print "¬"
+jump End always
+print "½"
+jump End always
+print "¼"
+jump End always
+print "¡"
+jump End always
+print "«"
+jump End always
+print "»"
+jump End always
+print "░"
+jump End always
+print "▒"
+jump End always
+print "▓"
+jump End always
+print "│"
+jump End always
+print "┤"
+jump End always
+print "Á"
+jump End always
+print "Â"
+jump End always
+print "À"
+jump End always
+print "©"
+jump End always
+print "╣"
+jump End always
+print "║"
+jump End always
+print "╗"
+jump End always
+print "╝"
+jump End always
+print "¢"
+jump End always
+print "¥"
+jump End always
+print "┐"
+jump End always
+print "└"
+jump End always
+print "┴"
+jump End always
+print "┬"
+jump End always
+print "├"
+jump End always
+print "─"
+jump End always
+print "┼"
+jump End always
+print "ã"
+jump End always
+print "Ã"
+jump End always
+print "╚"
+jump End always
+print "╔"
+jump End always
+print "╩"
+jump End always
+print "╦"
+jump End always
+print "╠"
+jump End always
+print "═"
+jump End always
+print "╬"
+jump End always
+print "¤"
+jump End always
+print "ð"
+jump End always
+print "Ð"
+jump End always
+print "Ê"
+jump End always
+print "Ë"
+jump End always
+print "È"
+jump End always
+print "ı"
+jump End always
+print "Í"
+jump End always
+print "Î"
+jump End always
+print "Ï"
+jump End always
+print "┘"
+jump End always
+print "┌"
+jump End always
+print "█"
+jump End always
+print "▄"
+jump End always
+print "¦"
+jump End always
+print "Ì"
+jump End always
+print "▀"
+jump End always
+print "Ó"
+jump End always
+print "ß"
+jump End always
+print "Ô"
+jump End always
+print "Ò"
+jump End always
+print "õ"
+jump End always
+print "Õ"
+jump End always
+print "µ"
+jump End always
+print "þ"
+jump End always
+print "Þ"
+jump End always
+print "Ú"
+jump End always
+print "Û"
+jump End always
+print "Ù"
+jump End always
+print "ý"
+jump End always
+print "Ý"
+jump End always
+print "¯"
+jump End always
+print "´"
+jump End always
+print "≡"
+jump End always
+print "±"
+jump End always
+print "‗"
+jump End always
+print "¾"
+jump End always
+print "¶"
+jump End always
+print "§"
+jump End always
+print "÷"
+jump End always
+print "¸"
+jump End always
+print "°"
+jump End always
+print "¨"
+jump End always
+print "·"
+jump End always
+print "¹"
+jump End always
+print "³"
+jump End always
+print "²"
+jump End always
+print "■"
+jump End always
+print " "
+jump End always
+
+End:
+op add i i 1
+jump StringLoop lessThan i 64
+set i 0
+printflush message1

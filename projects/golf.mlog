@@ -1,0 +1,196 @@
+
+setrate 500
+
+set drag 1.0006
+set dragExtra 1.003
+set boostValue 0.997
+set pullLimit 10
+
+set holeStartsX cell1
+set holeStartsY cell2
+set holePar cell3
+
+set currentHole 0
+
+wait 5
+read x holeStartsX 0
+read y holeStartsY 0
+
+
+Base_Loop:
+
+fetch player player @sharded 0
+sensor player.shootX player @shootX
+sensor player.shootY player @shootY
+sensor player.shooting player @shooting
+
+explosion @sharded x y -50 0 false false true
+		
+jump End equal previous_shooting_state player.shooting
+	jump Skip_Start notEqual player.shooting true
+		set vector.start.x player.shootX
+		set vector.start.y player.shootY
+	Skip_Start:
+	jump Skip_Ball notEqual player.shooting false
+		
+		
+		set prevX x
+		set prevY y
+		
+		op add strokeCount strokeCount 1 
+		
+		op div dx vector.x 250
+		op div dy vector.y 250
+		Ball_Loop:
+		
+			explosion @sharded x y -50 0 false false true
+			
+			cutscene pan x y 0.5 0
+			cutscene zoom .5
+			op add x x dx
+			op add y y dy
+			
+			
+			
+			op add xCheck x .5
+			op add yCheck y .5
+			
+			getblock floor groundTile xCheck yCheck
+			
+			jump Case_Extra_Drag equal groundTile @sand-floor
+			jump Case_Extra_Drag equal groundTile @shallow-water
+			jump Case_Extra_Drag equal groundTile @darksand
+			jump Case_Extra_Drag equal groundTile @mud
+			
+			jump Case_No_Drag equal groundTile @ice
+			
+			jump Case_Boost equal groundTile @core-zone
+			
+			jump Case_Death equal groundTile @deep-water
+			jump Case_Death equal groundTile @molten-slag
+			jump Case_Death equal groundTile @pooled-cryofluid
+			jump Case_Death equal groundTile @tar
+			jump Case_Death equal groundTile @space
+			
+			jump Case_Win equal groundTile @empty
+			
+			
+			Case_Normal_Drag:
+				op div dy dy drag
+				op div dx dx drag
+			jump Exit_Case always
+			Case_Extra_Drag:
+				op div dy dy dragExtra
+				op div dx dx dragExtra
+			jump Exit_Case always
+			Case_No_Drag:
+				
+			jump Exit_Case always
+			Case_Boost:
+				op div dy dy boostValue
+				op div dx dx boostValue
+			jump Exit_Case always
+			Case_Death:
+				explosion @sharded x y 10 0 false false false
+				set x prevX
+				set y prevY
+				set dx 0
+				set dy 0
+				wait 2
+			jump Exit_Case always
+			Case_Win:
+				explosion @sharded x y -65 0 false false true
+				read par holePar currentHole
+				op add currentHole currentHole 1
+				read x holeStartsX currentHole
+				read y holeStartsY currentHole
+				set dx 0
+				set dy 0
+				
+				print "[royal]You beat hole [red]"
+				print currentHole
+				print "[royal] in [red]"
+				print strokeCount
+				print "[royal] strokes!\n[green]Par is [red]"
+				print par
+				message notify
+
+				
+				op add totalStrokeCount totalStrokeCount strokeCount
+				set strokeCount 0
+				
+				wait 2
+			jump Exit_Case notEqual x 0
+			jump Exit_Case notEqual y 0
+				print "[royal]Congratulations!!! You beat all [red]"
+				print currentHole
+				print "[royal] holes, in a total of [red]"
+				print totalStrokeCount
+				print "[royal] strokes!\n[green]Feel free to play again for a better score :3"
+				message announce 15
+				
+				set currentHole 0
+				set totalStrokeCount 0
+				read par holePar currentHole
+				read x holeStartsX currentHole
+				read y holeStartsY currentHole
+				set dx 0
+				set dy 0
+				
+			jump Exit_Case always
+			Exit_Case:
+			
+			
+			
+			
+			op add xCheck x dx
+			op add yCheck y dy
+			
+			op add xCheck xCheck .5
+			op add yCheck yCheck .5
+			op add xCheck2 x .5
+			op add yCheck2 y .5
+			
+			getblock block xBlock xCheck yCheck2
+			getblock block yBlock xCheck2 yCheck
+			
+			jump SkipX equal xBlock @air
+				op mul dx dx -1
+			SkipX:
+			jump SkipY equal yBlock @air
+				op mul dy dy -1
+			SkipY:
+		
+			op abs absdx dx
+			op abs absdy dy
+		
+		jump Ball_Loop greaterThan absdx 0.0001
+		jump Ball_Loop greaterThan absdy 0.0001
+		cutscene stop
+	Skip_Ball:
+	
+End:
+
+jump Not_Holding notEqual player.shooting true
+		op sub vector.x vector.start.x player.shootX
+		op sub vector.y vector.start.y player.shootY 
+		
+		op len vector.magnitude vector.x vector.y  
+		
+		jump Vec_Not_Too_Large lessThan vector.magnitude pullLimit
+			
+			op mul vector.x vector.x pullLimit
+			op mul vector.y vector.y pullLimit
+			op div vector.x vector.x vector.magnitude
+			op div vector.y vector.y vector.magnitude
+			
+		Vec_Not_Too_Large:
+		
+		op sub vectorDraw.x x vector.x
+		op sub vectorDraw.y y vector.y
+		
+		explosion @sharded vectorDraw.x vectorDraw.y -50 0 false false true
+Not_Holding:
+
+set previous_shooting_state player.shooting
+jump Base_Loop always

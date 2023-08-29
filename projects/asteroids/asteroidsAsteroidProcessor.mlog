@@ -1,0 +1,34 @@
+setrate 500
+
+set asteroidX cell1
+set asteroidY cell2
+set asteroidDX cell3
+set asteroidDY cell4
+
+set settings cell5
+
+read displaySize settings 0
+read asteroidCount settings 1
+
+Loop:
+	read x asteroidX i
+	read y asteroidY i
+	read dx asteroidDX i
+	read dy asteroidDY i
+
+	op mul dx dx asteroidCount
+	op mul dy dy asteroidCount
+	
+	op add x x dx
+	op add y y dy
+	op add x x displaySize
+	op add y y displaySize
+	op mod x x displaySize
+	op mod y y displaySize
+	
+	write x asteroidX i
+	write y asteroidY i
+
+op add i i 1
+jump Loop lessThan i asteroidCount
+set i 0

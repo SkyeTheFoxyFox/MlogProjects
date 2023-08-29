@@ -1,0 +1,67 @@
+setrate 500
+
+set PLAYER_EXISTS cell1
+set PLAYER_BALL_X cell2
+set PLAYER_BALL_Y cell3
+set PLAYER_BALL_DX cell4
+set PLAYER_BALL_DY cell5
+set PLAYER_HOLE cell6
+set PLAYER_OLD_HOLE cell7
+set PLAYER_CLICKING cell8
+set PLAYER_START_CLICK_X cell9
+set PLAYER_START_CLICK_Y cell10
+set PLAYER_LAST_BALL_POS_X cell11
+set PLAYER_LAST_BALL_POS_Y cell12
+set PLAYER_CURRENT_STROKE_COUNT cell13
+set PLAYER_TOTAL_STROKE_COUNT cell14
+set PLAYER_BALL_COLOR cell15
+
+WaitLoop:
+set playerCountOld playerCount
+fetch playerCount playerCount @sharded
+jump WaitLoop greaterThanEq playerCount playerCountOld
+
+
+PlayerLoop:
+	fetch player player @sharded playerIndex
+	sensor playerFlag player @flag
+	op abs playerFlag playerFlag
+	op and playerFlag playerFlag 0b1111111
+	jump BOZO equal playerFlag 0
+	write 2 PLAYER_EXISTS playerFlag
+	BOZO:
+op add playerIndex playerIndex 1
+jump PlayerLoop lessThan playerIndex playerCount
+set playerIndex 0
+
+ClearLoop:
+read playerExist PLAYER_EXISTS i
+jump PlayerExists notEqual playerExist 1
+	write 0 PLAYER_EXISTS i
+	write 0 PLAYER_BALL_X i
+	write 0 PLAYER_BALL_Y i
+	write 0 PLAYER_BALL_DX i
+	write 0 PLAYER_BALL_DY i
+	write 0 PLAYER_HOLE i
+	write 0 PLAYER_OLD_HOLE i
+	write 0 PLAYER_CLICKING i
+	write 0 PLAYER_START_CLICK_X i
+	write 0 PLAYER_START_CLICK_Y i
+	write 0 PLAYER_LAST_BALL_POS_X i
+	write 0 PLAYER_LAST_BALL_POS_Y i
+	write 0 PLAYER_CURRENT_STROKE_COUNT i
+	write 0 PLAYER_TOTAL_STROKE_COUNT i
+	write 0 PLAYER_BALL_COLOR i
+PlayerExists:
+op add i i 1
+jump ClearLoop lessThan i 128
+set i 0
+
+ResetLoop:
+read playerExist PLAYER_EXISTS i
+jump IdkMan notEqual playerExist 2
+	write 1 PLAYER_EXISTS i
+IdkMan:
+op add i i 1
+jump ResetLoop lessThan i 128
+set i 0

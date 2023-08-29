@@ -1,0 +1,74 @@
+setrate 500
+
+set asteroidX cell1
+set asteroidY cell2
+set asteroidDX cell3
+set asteroidDY cell4
+set asteroidAngle cell5
+set asteroidSize cell6
+
+set settings cell7
+
+read displaySize settings 0
+read asteroidCount settings 1
+read asteroidSpawnCount settings 3
+
+Loop:
+	read targetAsteroidSize asteroidSize i
+	op lessThanEq deadCheck targetAsteroidSize 0
+	op add deadCount deadCount deadCheck
+
+op add  i i 1
+jump Loop lessThan i asteroidCount
+set i 0
+jump End lessThan deadCount asteroidCount
+
+read playerX playerData 0
+read playerY playerData 1
+
+CreateLoop:
+	
+	op rand dx .04
+	op rand dy .04
+	op sub dx dx .02
+	op sub dy dy .02
+	op rand x displaySize
+	op rand y displaySize
+	op rand side 4
+	op floor side side
+	
+	jump Up equal side 0
+	jump Down equal side 1
+	jump Left equal side 2
+	jump Right equal side 3
+	
+	Up:
+		set y displaySize
+		jump Exit always
+	Down:
+		set y 0
+		jump Exit always
+	Left:
+		set x 0
+		jump Exit always
+	Right:
+		set x displaySize
+		jump Exit always
+	Exit:
+
+	op rand ang 360
+	write x asteroidX i
+	write y asteroidY i
+	write dx asteroidDX i
+	write dy asteroidDY i
+	write ang asteroidAngle i
+	write 15 asteroidSize i
+	
+
+op add  i i 1
+jump CreateLoop lessThan i asteroidSpawnCount
+set i 0
+
+
+End:
+set deadCount 0

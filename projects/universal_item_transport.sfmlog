@@ -1,0 +1,54 @@
+set UNIT_TYPE @dagger
+set UNIT_COUNT 3
+set ITEM_TYPE @copper
+
+set DEST_X 0
+set DEST_Y 0
+set SOURCE_X 0
+set SOURCE_Y 0
+set SOURCE_REAL_X 0
+set SOURCE_REAL_Y 0
+
+getlink dest 0
+jump 0 strictEqual dest null
+
+UnitLoop:
+	arr read UnitArray unit i
+	ubind unit
+	jump DontBind notEqual @unit null
+	UnitBind:
+		ubind UNIT_TYPE
+		sensor unitFlag @unit @flag
+		jump UnitBind notEqual unitFlag 0
+		ucontrol flag 98129.662
+		arr write UnitArray @unit i
+	DontBind:
+	sensor itemType @unit @firstItem
+	jump DontDrop equal itemType ITEM_TYPE
+	jump DontDrop strictEqual itemType null
+		ucontrol itemDrop @air 9001
+	DontDrop:
+	sensor itemCount @unit @totalItems
+	jump GoToDest greaterThan itemCount 0
+	GoToSource:
+		ucontrol pathfind SOURCE_X SOURCE_Y
+		ucontrol within SOURCE_X SOURCE_Y 2 check
+		jump TooFarSource equal check false
+			ucontrol getBlock SOURCE_REAL_X SOURCE_REAL_Y 0 source
+			ucontrol itemTake source ITEM_TYPE 9001
+		TooFarSource:
+		jump Exit always
+	GoToDest:
+		ucontrol pathfind DEST_X DEST_Y
+		ucontrol within DEST_X DEST_Y 2 check
+		jump TooFarDest equal check false
+			ucontrol itemDrop dest 9001
+		TooFarDest:
+	Exit:
+op add i i 1
+jump UnitLoop lessThan i UNIT_COUNT
+set i 0
+
+jump UnitLoop always
+
+arr define UnitArray 32

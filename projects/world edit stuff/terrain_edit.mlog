@@ -1,0 +1,44 @@
+set fillBlock @air
+setrate 500
+WaitLoop:
+fetch player player @sharded 0
+sensor player.shoot player @shooting
+jump WaitLoop notEqual player.shoot true
+
+sensor box.x1 player @shootX
+sensor box.y1 player @shootY
+op sub box.x1 box.x1 0.5
+op sub box.y1 box.y1 0.5
+op ceil box.x1 box.x1
+op ceil box.y1 box.y1
+
+SelectLoop:
+sensor player.shoot player @shooting
+sensor box.x2 player @shootX
+sensor box.y2 player @shootY
+op sub box.x2 box.x2 0.5
+op sub box.y2 box.y2 0.5
+op ceil box.x2 box.x2
+op ceil box.y2 box.y2
+
+explosion @sharded box.x1 box.y1 0 0 false false false
+explosion @sharded box.x2 box.y2 0 0 false false false
+explosion @sharded box.x1 box.y2 0 0 false false false
+explosion @sharded box.x2 box.y1 0 0 false false false
+
+jump SelectLoop notEqual player.shoot false
+
+op min rect.x1 box.x1 box.x2
+op min rect.y1 box.y1 box.y2
+op max rect.x2 box.x1 box.x2
+op max rect.y2 box.y1 box.y2
+set x rect.x1
+set y rect.y1
+RectLoop:
+	setblock block fillBlock x y @sharded
+op add x x 1
+jump RectLoop lessThanEq x rect.x2
+set x rect.x1
+op add y y 1
+jump RectLoop lessThanEq y rect.y2
+set y rect.y1

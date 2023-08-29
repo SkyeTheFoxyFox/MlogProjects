@@ -1,0 +1,306 @@
+setrate 500
+
+set BALL_DRAG 0.0005
+set BALL_EXTRA_DRAG 0.003
+set BALL_BOOST -0.003
+
+set SLOW_THRESHOLD 0.0003
+set PULL_LIMIT 10
+
+set HOLE_STARTS_X cell1
+set HOLE_STARTS_Y cell2
+set HOLE_PAR cell3
+set PLAYER_EXISTS cell4
+set PLAYER_BALL_DX cell5
+set PLAYER_BALL_DY cell6
+set PLAYER_OLD_HOLE cell7
+set PLAYER_CLICKING cell8
+set PLAYER_START_CLICK_X cell9
+set PLAYER_START_CLICK_Y cell10
+set PLAYER_LAST_BALL_POS_X cell11
+set PLAYER_LAST_BALL_POS_Y cell12
+set PLAYER_CURRENT_STROKE_COUNT cell13
+set PLAYER_TOTAL_STROKE_COUNT cell14
+set PLAYER_BALL_COLOR cell15
+
+wait 10
+
+Start:
+
+op sub dt @time oldTime
+set oldTime @time
+
+
+
+fetch playerCount playerCount @sharded
+PlayerLoop:
+	fetch player player @sharded playerI
+	sensor playerFlag player @flag
+	op abs playerFlag playerFlag
+	op and playerIndex playerFlag 0b1111111
+
+	set flagFlip 1
+
+	jump BOZO equal playerIndex 0
+
+
+	
+	BallUpdate:
+		read ballDX PLAYER_BALL_DX playerIndex
+		read ballDY PLAYER_BALL_DY playerIndex
+		read strokeCount PLAYER_CURRENT_STROKE_COUNT playerIndex
+		read totalStrokeCount PLAYER_TOTAL_STROKE_COUNT playerIndex
+		read ballColor PLAYER_BALL_COLOR playerIndex
+
+		op shr playerFlag playerFlag 7
+		op and ballX playerFlag 0b11111111111111111111
+		op div ballX ballX 1000
+		op sub ballX ballX 2
+		op shr playerFlag playerFlag 20
+		op and ballY playerFlag 0b11111111111111111111
+		op div ballY ballY 1000
+		op shr playerFlag playerFlag 20
+		op sub ballY ballY 2
+		op and currentHole playerFlag 0b111111
+
+		jump NotHoleZero notEqual currentHole 0
+			op add currentHole currentHole 1
+			write currentHole PLAYER_OLD_HOLE playerIndex
+			read ballX HOLE_STARTS_X currentHole
+			read ballY HOLE_STARTS_Y currentHole
+			set ballDX 0
+			set ballDY 0
+		NotHoleZero:
+
+		op mul ballDXDT ballDX dt
+		op mul ballDYDT ballDY dt
+		op add xCheck ballX ballDXDT
+		op add yCheck ballY ballDYDT
+		
+		op add xCheck xCheck .5
+		op add yCheck yCheck .5
+		op add xCheck2 ballX .5
+		op add yCheck2 ballY .5
+		
+		getblock block xBlock xCheck yCheck2
+		getblock block yBlock xCheck2 yCheck
+		
+		jump CollisionSkipX equal xBlock @air
+			op mul ballDX ballDX -1
+		CollisionSkipX:
+		jump CollisionSkipY equal yBlock @air
+			op mul ballDY ballDY -1
+		CollisionSkipY:
+
+		op mul ballDXDT ballDX dt
+		op mul ballDYDT ballDY dt
+		op add ballX ballX ballDXDT
+		op add ballY ballY ballDYDT
+
+		effect trail ballX ballY 2 ballColor #%88c6ff
+
+		op add floorCheckX ballX .5
+		op add floorCheckY ballY .5
+
+		getblock floor currentFloor floorCheckX floorCheckY
+
+		jump CaseExtraDrag equal currentFloor @sand-floor
+		jump CaseExtraDrag equal currentFloor @shallow-water
+		jump CaseExtraDrag equal currentFloor @darksand
+		jump CaseExtraDrag equal currentFloor @mud
+		
+		jump ExitFloorCase equal currentFloor @ice
+		
+		jump CaseBoost equal currentFloor @core-zone
+		
+		jump CaseDeath equal currentFloor @deep-water
+		jump CaseDeath equal currentFloor @molten-slag
+		jump CaseDeath equal currentFloor @pooled-cryofluid
+		jump CaseDeath equal currentFloor @tar
+		jump CaseDeath equal currentFloor @space
+		jump CaseDeath equal currentFloor null
+		
+		jump CaseWin equal currentFloor @empty
+
+		CaseNormalDrag:
+			op mul drag BALL_DRAG dt
+			op add drag drag 1
+			op div ballDX ballDX drag
+			op div ballDY ballDY drag
+		jump ExitFloorCase always
+		CaseExtraDrag:
+			op mul drag BALL_EXTRA_DRAG dt
+			op add drag drag 1
+			op div ballDX ballDX drag
+			op div ballDY ballDY drag
+		jump ExitFloorCase always
+		CaseBoost:
+			op mul boost BALL_BOOST dt
+			op add boost boost 1
+			op div ballDX ballDX boost
+			op div ballDY ballDY boost
+			op angle angle ballDX ballDY
+			op add angle angle 180
+			effect sparkShoot ballX ballY angle %ff7700
+		jump ExitFloorCase always
+		CaseDeath:
+			effect explosion ballX ballY 10
+			read ballReturnX PLAYER_LAST_BALL_POS_X playerIndex
+			read ballReturnY PLAYER_LAST_BALL_POS_Y playerIndex
+			set ballX ballReturnX
+			set ballY ballReturnY
+			set ballDX 0
+			set ballDY 0
+		jump ExitFloorCase always
+		CaseWin:
+			explosion @sharded ballX ballY -65 0 false false true
+			
+			op add currentHole currentHole 1
+			read ballX HOLE_STARTS_X currentHole
+			read ballY HOLE_STARTS_Y currentHole
+			set ballDX 0
+			set ballDY 0
+
+			op add totalStrokeCount totalStrokeCount strokeCount
+			set tempStrokeCount strokeCount
+			set strokeCount 0
+
+		jump ExitFloorCase always
+		ExitFloorCase:
+
+		read oldHole PLAYER_OLD_HOLE playerIndex
+
+		jump BallNotInHole equal currentHole oldHole
+			op sub hole currentHole 1
+			read par HOLE_PAR hole
+			sensor playerName player @name
+			print "[royal]"
+			print playerName
+			print " beat hole [red]"
+			print hole
+			print "[royal] in [red]"
+			print tempStrokeCount
+			print "[royal] strokes!\n[green]Par is [red]"
+			print par
+			message mission
+			set ballDX 0
+			set ballDY 0
+		BallNotInHole:
+
+		write currentHole PLAYER_OLD_HOLE playerIndex
+
+		jump PlayerNotAtEnd notEqual ballX 0
+		jump PlayerNotAtEnd notEqual ballY 0
+			op sub currentHole currentHole 1
+			print "[royal]"
+			print playerName
+			print " beat all [red]"
+			print currentHole
+			print "[royal] holes, in a total of [red]"
+			print totalStrokeCount
+			print "[royal] strokes!\n[green]Make sure to congratulate them :3"
+			message announce 5
+				
+			set currentHole 1
+			set totalStrokeCount 0
+			read ballX HOLE_STARTS_X currentHole
+			read ballY HOLE_STARTS_Y currentHole
+			set ballDX 0
+			set ballDY 0
+		PlayerNotAtEnd:
+
+	op abs normalDX ballDX
+	op abs normalDY ballDY
+
+	read playerClickOld PLAYER_CLICKING playerIndex
+	sensor playerShooting player @shooting
+	sensor playerShootX player @shootX
+	sensor playerShootY player @shootY
+
+	jump SkipLaunch greaterThan normalDX SLOW_THRESHOLD
+	jump SkipLaunch greaterThan normalDY SLOW_THRESHOLD
+
+	write ballX PLAYER_LAST_BALL_POS_X playerIndex
+	write ballY PLAYER_LAST_BALL_POS_Y playerIndex
+
+	set ballDX 0
+	set ballDY 0
+
+	PlayerLaunch: #Some kind of jank
+	jump PlayerNotClick greaterThanEq playerClickOld playerShooting
+		write playerShootX PLAYER_START_CLICK_X playerIndex
+		write playerShootY PLAYER_START_CLICK_Y playerIndex
+	PlayerNotClick:
+	read playerAnchorX PLAYER_START_CLICK_X playerIndex
+	read playerAnchorY PLAYER_START_CLICK_Y playerIndex
+
+	set dontMessWithBallSpeed true
+
+	jump RunItAnyway lessThan playerShooting playerClickOld
+	jump NotHolding notEqual playerShooting true
+		RunItAnyway:
+		set dontMessWithBallSpeed false
+		op sub strokeVecX playerAnchorX playerShootX
+		op sub strokeVecY playerAnchorY playerShootY
+		
+		op len strokeVecMag strokeVecX strokeVecY  
+		
+		jump VecNotTooLarge lessThan strokeVecMag PULL_LIMIT
+			op mul strokeVecX strokeVecX PULL_LIMIT
+			op mul strokeVecY strokeVecY PULL_LIMIT
+			op div strokeVecX strokeVecX strokeVecMag
+			op div strokeVecY strokeVecY strokeVecMag
+			
+		VecNotTooLarge:
+		
+		op sub strokeVecDrawX ballX strokeVecX
+		op sub strokeVecDrawY ballY strokeVecY
+		
+		effect explosion strokeVecDrawX strokeVecDrawY 0
+	NotHolding:
+	jump PlayerNotRelease greaterThanEq playerShooting playerClickOld
+	jump PlayerNotRelease equal dontMessWithBallSpeed true
+		op div ballDX strokeVecX 250
+		op div ballDY strokeVecY 250
+		op add strokeCount strokeCount 1
+	PlayerNotRelease:
+
+	jump SkipCameraFollow always
+	SkipLaunch:
+	set flagFlip -1
+	SkipCameraFollow:
+
+	op add writeX ballX 2
+	op mul writeX writeX 1000
+	op floor writeX writeX
+	op and writeX writeX 0b11111111111111111111
+	op shl writeX writeX 7
+	op add writeY ballY 2
+	op mul writeY writeY 1000
+	op floor writeY writeY
+	op and writeY writeY 0b11111111111111111111
+	op shl writeY writeY 27
+	op and currentHole currentHole 0b111111
+	op shl currentHole currentHole 47
+
+
+	op or newPlayerFlag writeX playerIndex
+	op or newPlayerFlag newPlayerFlag writeY
+	op or newPlayerFlag newPlayerFlag currentHole
+	op mul newPlayerFlag newPlayerFlag flagFlip
+	setprop @flag player newPlayerFlag
+
+	write ballDX PLAYER_BALL_DX playerIndex
+	write ballDY PLAYER_BALL_DY playerIndex
+	write playerShooting PLAYER_CLICKING playerIndex
+	write strokeCount PLAYER_CURRENT_STROKE_COUNT playerIndex
+	write totalStrokeCount PLAYER_TOTAL_STROKE_COUNT playerIndex
+
+	BOZO:
+
+op add playerI playerI 1
+jump PlayerLoop lessThan playerI playerCount
+set playerI 0
+
+jump Start always
+

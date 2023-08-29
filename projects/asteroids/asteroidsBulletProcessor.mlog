@@ -1,0 +1,88 @@
+setrate 500
+
+set bulletTimer 75
+set bulletSpeed 1
+
+set bulletX cell1
+set bulletY cell2
+set bulletDX cell3
+set bulletDY cell4
+set playerData cell5
+set settings cell6
+
+read displaySize settings 0
+read bulletCount settings 2
+
+read playerDead playerData 3
+
+jump NoShoot equal playerDead 1
+
+sensor shoot switch1 @enabled
+op notEqual shootCheck shoot shootState 
+op equal shootCheck2 shoot 1
+op land shootCheck shootCheck shootCheck2 
+op notEqual shootCheck shootCheck 1
+op mul shootTimer shootTimer shootCheck
+op add shootTimer shootTimer 1
+op lessThanEq canShoot shootTimer 1
+op land canShoot canShoot shoot
+op mod shootTimer shootTimer bulletTimer
+set shootState shoot
+
+
+jump NoShoot notEqual canShoot true
+
+CreateBulletLoop:
+	read targetBulletDX bulletDX i
+	read targetBulletDY bulletDY i
+	op add bulletMoving targetBulletDX targetBulletDY
+	op notEqual bulletMoving bulletMoving 0
+	jump BulletFound equal bulletMoving false
+op add i i 1
+jump CreateBulletLoop lessThan i bulletCount
+jump NoShoot always
+BulletFound:
+	read playerX playerData 0
+	read playerY playerData 1
+	read playerAngle playerData 2
+	
+	op cos dx playerAngle
+	op sin dy playerAngle
+	op mul dx dx bulletSpeed
+	op mul dy dy bulletSpeed
+
+	write playerX bulletX i
+	write playerY bulletY i
+	write dx bulletDX i
+	write dy bulletDY i
+	
+NoShoot:
+set i 0
+
+BulletLoop:
+	read targetBulletX bulletX i
+	read targetBulletY bulletY i
+	read targetBulletDX bulletDX i
+	read targetBulletDY bulletDY i
+	op add targetBulletX targetBulletX targetBulletDX
+	op add targetBulletY targetBulletY targetBulletDY
+	write targetBulletX bulletX i
+	write targetBulletY bulletY i
+	
+	op greaterThan check1 targetBulletX displaySize
+	op lessThan check2 targetBulletX 0
+	op or checkX check1 check2
+	op greaterThan check1 targetBulletY displaySize
+	op lessThan check2 targetBulletY 0
+	op or checkY check1 check2
+	op or check checkX checkY
+	jump BulletLives equal check false
+		write -20 bulletX i
+		write -20 bulletY i
+		write 0 bulletDX i
+		write 0 bulletDY i
+	BulletLives:
+	
+op add i i 1
+jump BulletLoop lessThan i bulletCount
+set i 0

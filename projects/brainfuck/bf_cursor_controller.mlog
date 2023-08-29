@@ -1,0 +1,26 @@
+Start:
+
+set comCell cell1
+set leftSwitch switch1
+set rightSwitch switch2
+
+read cellSize comCell 1
+op sub cellSize cellSize 1
+
+sensor left leftSwitch @enabled
+sensor right rightSwitch @enabled
+
+jump NotLeft notEqual left true
+	control enabled leftSwitch 0
+	read cursorPos comCell 0
+	jump Start lessThanEq cursorPos 0
+	op sub cursorPos cursorPos 1
+	write cursorPos comCell 0
+NotLeft:
+jump Start notEqual right true
+	control enabled rightSwitch 0
+	read cursorPos comCell 0
+	jump Start greaterThanEq cursorPos cellSize
+	op add cursorPos cursorPos 1
+	write cursorPos comCell 0
+jump Start always

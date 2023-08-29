@@ -1,0 +1,113 @@
+setrate 500
+
+set radius 5
+set explosionRadius 9
+
+op rand delay 900
+op add delay delay 1800
+
+wait delay
+
+op rand crater.x @mapw
+op rand crater.y @maph
+
+op floor crater.x crater.x
+op floor crater.y crater.y
+
+op sub crater.x1 crater.x radius
+op add crater.x2 crater.x radius
+op sub crater.y1 crater.y radius
+op add crater.y2 crater.y radius
+op sub crater.x1_2 crater.x1 1
+op add crater.x2_2 crater.x2 1
+op sub crater.y1_2 crater.y1 1
+op add crater.y2_2 crater.y2 1
+
+op add radius_2 radius 1
+
+explosion @crux crater.x crater.y explosionRadius 1050 true true false
+
+set x crater.x1_2
+set y crater.y1_2
+
+FloorLoop:
+	
+	op sub check.x x crater.x
+	op sub check.y y crater.y
+	
+	op pow check.x check.x 2
+	op pow check.y check.y 2
+	op add check check.x check.y
+	op sqrt check check
+	
+	getblock floor floor x y
+	
+	jump SkipFloor greaterThanEq check radius_2
+	jump SkipFloor equal floor @shallow-water
+	jump SkipFloor equal floor @deep-water
+	jump SkipFloor equal floor @core-zone
+		setblock floor @basalt x y @sharded
+	
+	SkipFloor:
+op add x x 1
+jump FloorLoop lessThanEq x crater.x2_2
+set x crater.x1_2
+op add y y 1
+jump FloorLoop lessThanEq y crater.y2_2
+set y crater.y1
+set x crater.x1
+
+AirLoop:
+	
+	op sub check.x x crater.x
+	op sub check.y y crater.y
+	
+	op pow check.x check.x 2
+	op pow check.y check.y 2
+	op add check check.x check.y
+	op sqrt check check
+	
+	getblock building building x y
+	
+	jump SkipBlock notEqual building Null
+	jump SkipBlock greaterThanEq check radius
+
+		op rand isBoulder 25
+		jump Boulder lessThan isBoulder 1
+		setblock block @air x y @sharded
+		jump SkipBlock always
+		Boulder:
+		setblock block @basalt-boulder x y @sharded
+	SkipBlock:
+op add x x 1
+jump AirLoop lessThanEq x crater.x2
+set x crater.x1
+op add y y 1
+jump AirLoop lessThanEq y crater.y2
+set y crater.y1
+
+op add crater.xt crater.x 0.5
+op add crater.yt crater.y 0.5
+
+CircleLoop:
+	op sin y theta
+	op cos x theta
+	op mul y y radius
+	op mul x x radius
+	op add x x crater.xt
+	op add y y crater.yt
+
+	getblock block block x y
+	getblock building building x y
+
+	jump SkipBlock2 equal block @air
+	jump SkipBlock2 notEqual building null
+
+		setblock block @dune-wall x y @sharded
+
+	SkipBlock2:
+
+op add theta theta 5
+jump CircleLoop lessThan theta 360
+set theta 0
+

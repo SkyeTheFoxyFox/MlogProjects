@@ -1,0 +1,114 @@
+control enabled switch1 0
+HaltLoop:
+sensor enable switch1 @enabled
+jump HaltLoop notEqual enable true
+
+set instCell bank1
+set tapeCell bank2
+set outCell bank3
+set inCell bank4
+
+set instCellSize 512
+
+set instructionPointer 0
+set tapeIndex 0
+set nestCounter 0
+set outIndex 0
+set inIndex 0
+InstructionLoop:
+	read instruction instCell instructionPointer
+
+	jump Exit equal instruction 0
+	jump Add equal instruction 1
+	jump Sub equal instruction 2
+	jump Shl equal instruction 3
+	jump Shr equal instruction 4
+	jump Ob equal instruction 5
+	jump Cb equal instruction 6
+	jump Out equal instruction 7
+	jump In equal instruction 8
+	jump Exit always
+
+	Add:
+		read value tapeCell tapeIndex
+		op add value value 257
+		op mod value value 256
+		write value tapeCell tapeIndex
+	jump Exit always
+
+	Sub:
+		read value tapeCell tapeIndex
+		op add value value 255
+		op mod value value 256
+		write value tapeCell tapeIndex
+	jump Exit always
+
+	Shl:
+		op sub tapeIndex tapeIndex 1
+	jump Exit always
+
+	Shr:
+			op add tapeIndex tapeIndex 1
+	jump Exit always
+
+	Ob:
+		read value tapeCell tapeIndex
+		jump Exit notEqual value 0
+			op add nestCounter nestCounter 1
+			ObLoop:
+				op add instructionPointer instructionPointer 1
+				read tempInstruction instCell instructionPointer
+				jump ObIsOb equal tempInstruction 5
+				jump ObIsCb equal tempInstruction 6
+				jump ObExit always
+
+				ObIsOb:
+					op add nestCounter nestCounter 1
+				jump ObExit always
+				ObIsCb:
+					op sub nestCounter nestCounter 1
+				jump ObExit always
+				ObExit:
+			jump ObLoop notEqual nestCounter 0
+	jump Exit always
+
+	Cb:
+		read value tapeCell tapeIndex
+		jump Exit equal value 0
+			op add nestCounter nestCounter 1
+			CbLoop:
+				op sub instructionPointer instructionPointer 1
+				read tempInstruction instCell instructionPointer
+				jump CbIsOb equal tempInstruction 5
+				jump CbIsCb equal tempInstruction 6
+				jump CbExit always
+
+				CbIsOb:
+					op sub nestCounter nestCounter 1
+				jump CbExit always
+				CbIsCb:
+					op add nestCounter nestCounter 1
+				jump CbExit always
+				CbExit:
+			jump CbLoop notEqual nestCounter 0
+	jump Exit always
+
+	Out:
+		read value tapeCell tapeIndex
+		write value outCell outIndex
+		op add outIndex outIndex 1
+	jump Exit always
+
+	In:
+		read value inCell inIndex
+		op floor value value
+		op min value value 255
+		op max value value 0
+		write value tapeCell tapeIndex
+		op add inIndex inIndex 1 
+	jump Exit always
+
+	Exit:
+
+	op add instructionPointer instructionPointer 1
+jump InstructionLoop lessThan instructionPointer instCellSize

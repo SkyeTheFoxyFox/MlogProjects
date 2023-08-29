@@ -1,0 +1,15 @@
+
+EnableLoop:
+sensor enable switch1 @enabled
+jump EnableLoop notEqual enable true
+
+set instCell bank1
+
+set cellSize 512
+
+ResetLoop:
+	write 0 instCell i
+op add i i 1
+jump ResetLoop lessThan i cellSize
+set i 0
+control enabled switch1 0

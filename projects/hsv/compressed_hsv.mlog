@@ -1,0 +1,105 @@
+set H 0
+set S 1
+set V 1
+
+setrate 500
+
+op mul C V S #compute C
+
+op sub m V C #compute m
+
+op div degreeMul 360 64
+
+Loop:
+
+op mul H i degreeMul
+
+op div X H 60 #compute X
+op mod X X 2
+op sub X X 1
+op abs X X
+op sub X 1 X
+op mul X C X
+
+op lessThanEq check1 0 H # H cases
+op lessThan check2 H 60
+op and check1 check1 check2
+jump Case1 equal check1 true
+op lessThanEq check1 60 H
+op lessThan check2 H 120
+op and check1 check1 check2
+jump Case2 equal check1 true
+op lessThanEq check1 120 H
+op lessThan check2 H 180
+op and check1 check1 check2
+jump Case3 equal check1 true
+op lessThanEq check1 180 H
+op lessThan check2 H 240
+op and check1 check1 check2
+jump Case4 equal check1 true
+op lessThanEq check1 240 H
+op lessThan check2 H 300
+op and check1 check1 check2
+jump Case5 equal check1 true
+op lessThanEq check1 300 H
+op lessThan check2 H 360
+op and check1 check1 check2
+jump Case6 equal check1 true
+
+Case1:
+set R C
+set G X
+set B 0
+jump Out always
+
+Case2:
+set R X
+set G C
+set B 0
+jump Out always
+
+Case3:
+set R 0
+set G C
+set B X
+jump Out always
+
+Case4:
+set R 0
+set G X
+set B C
+jump Out always
+
+Case5:
+set R X
+set G 0
+set B C
+jump Out always
+
+Case6:
+set R C
+set G 0
+set B X
+jump Out always
+
+Out:
+
+op add R R m
+op mul R R 255
+
+op add G G m
+op mul G G 255
+
+op add B B m
+op mul B B 255
+
+op div R R 255
+op div G G 255
+op div B B 255
+
+packcolor col R G B 1
+write col cell1 i
+
+op add i i 1
+jump Loop lessThan i 64
+set i 0 

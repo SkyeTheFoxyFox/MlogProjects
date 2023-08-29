@@ -1,0 +1,32 @@
+setrate 500
+
+set PLAYER_EXISTS cell1
+
+set playerCount 0
+
+wait 10
+
+Start:
+
+WaitLoop:
+set playerCountOld playerCount
+fetch playerCount playerCount @sharded
+jump WaitLoop lessThanEq playerCount playerCountOld
+wait 2
+
+fetch player player @sharded playerCountOld
+set i 1
+ReadLoop:
+read cellState PLAYER_EXISTS i
+jump Skip notEqual cellState 0
+	write true PLAYER_EXISTS i
+	setprop @flag player i
+	jump ExitLoop always
+Skip:
+op add i i 1
+jump ReadLoop lessThan i 128
+print "TOO MANY PLAYERS!!!!!!"
+message announce 3
+ExitLoop:
+
+jump Start always

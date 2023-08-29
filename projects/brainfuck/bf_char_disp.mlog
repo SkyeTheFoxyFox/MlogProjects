@@ -1,0 +1,154 @@
+set cellSize 512
+
+set display display1
+set charCell bank1
+set comCell cell1
+
+write cellSize comCell 1
+
+set displaySize 176
+set charCount 11
+
+op div charWidth displaySize charCount
+set charHeight charWidth
+op div barPosition displaySize 2 
+
+op div charHeightHalf charHeight 2
+op sub barLowPosition barPosition charHeightHalf
+
+RenderLoop:
+	read cursorPosition comCell 0
+
+	op idiv charDisplayOffset charCount 2
+	op sub charDisplayOffset cursorPosition charDisplayOffset
+	op max charDisplayOffset charDisplayOffset 0
+	op add charDisplayOffset charDisplayOffset 11
+	op min charDisplayOffset charDisplayOffset cellSize
+	op sub charDisplayOffset charDisplayOffset 11
+
+	op sub relativeCursorPosition cursorPosition charDisplayOffset
+
+	op mul cursorX charWidth relativeCursorPosition
+
+	draw color 60 57 64 255
+	draw rect 0 barLowPosition displaySize charHeight
+
+	CharLoop:
+		op mul charX charWidth i
+		set charY barLowPosition
+
+		draw color 156 148 166
+		draw lineRect charX charY charWidth charHeight
+
+		op add charIndex i charDisplayOffset
+
+		read char charCell charIndex
+
+		jump ExitDraw equal char 0
+		jump DrawPlus equal char 1
+		jump DrawMinus equal char 2
+		jump DrawShl equal char 3
+		jump DrawShr equal char 4
+		jump DrawOpenBracket equal char 5
+		jump DrawCloseBracket equal char 6
+		jump DrawPeriod equal char 7
+		jump DrawComma equal char 8
+		jump ExitDraw always
+
+		DrawPlus:
+			op add plus1X charX 2
+			op add plus1Y charY 6
+			op add plus2X charX 6
+			op add plus2Y charY 2
+			draw color 255 255 255 255
+			draw rect plus1X plus1Y 12 4
+			draw rect plus2X plus2Y 4 12
+
+		jump ExitDraw always
+		DrawMinus:
+			op add minusX charX 2
+			op add minusY charY 6
+			draw color 255 255 255 255
+			draw rect minusX minusY 12 4
+
+		jump ExitDraw always
+		DrawShl:
+			
+			op add shl1Y charY 12
+			op add shl1X charX 12
+			op add shl2Y charY 8
+			op add shl2X charX 4
+			op add shl3Y charY 4
+			op add shl3X charX 12
+		
+			draw color 255 255 255 255
+			draw stroke 4
+			draw line shl1X shl1Y shl2X shl2Y
+			draw line shl2X shl2Y shl3X shl3Y
+			draw stroke 1
+
+		jump ExitDraw always
+		DrawShr:
+			op add shl1Y charY 12
+			op add shl1X charX 4
+			op add shl2Y charY 8
+			op add shl2X charX 12
+			op add shl3Y charY 4
+			op add shl3X charX 4
+		
+			draw color 255 255 255 255
+			draw stroke 4
+			draw line shl1X shl1Y shl2X shl2Y
+			draw line shl2X shl2Y shl3X shl3Y
+			draw stroke 1
+
+		jump ExitDraw always
+		DrawOpenBracket:
+			op add ob1X charX 4
+			op add ob1Y charY 2
+			op add ob2X charX 4
+			op add ob2Y charY 10
+			draw color 255 255 255 255
+			draw rect ob1X ob1Y 8 4
+			draw rect ob1X ob1Y 4 12
+			draw rect ob2X ob2Y 8 4
+
+		jump ExitDraw always
+		DrawCloseBracket:
+			op add cb1X charX 4
+			op add cb1Y charY 2
+			op add cb2X charX 4
+			op add cb2Y charY 10
+			op add cb3X charX 8
+			op add cb3Y charY 2
+			draw color 255 255 255 255
+			draw rect cb1X cb1Y 8 4
+			draw rect cb3X cb3Y 4 12
+			draw rect cb2X cb2Y 8 4
+
+		jump ExitDraw always
+		DrawPeriod:
+			op add periodX charX 6
+			op add periodY charY 2
+			draw color 255 255 255 255
+			draw rect periodX periodY 4 4
+
+		jump ExitDraw always
+		DrawComma:
+			op add commaX charX 6
+			op add commaY charY 2
+			draw color 255 255 255 255
+			draw rect commaX commaY 4 8
+
+		jump ExitDraw always , .
+		ExitDraw:
+
+
+	op add i i 1
+	jump CharLoop lessThan i charCount
+	set i 0
+
+	draw color 255 255 255
+	draw lineRect cursorX barLowPosition charWidth charHeight
+
+drawflush display

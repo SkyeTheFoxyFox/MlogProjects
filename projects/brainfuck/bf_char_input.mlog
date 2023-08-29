@@ -1,0 +1,94 @@
+Start:
+
+set instructionCell bank1
+set comCell cell1
+set plusSwitch switch1
+set minusSwitch switch2
+set shlSwitch switch3
+set shrSwitch switch4
+set obSwitch switch5
+set cbSwitch switch6
+set periodSwitch switch7
+set commaSwitch switch8
+set eraseSwitch switch9
+
+set scrollSwitch switch10
+
+read cellSize comCell 1
+op sub cellSize cellSize 1
+
+sensor plus plusSwitch @enabled
+sensor minus minusSwitch @enabled
+sensor shl shlSwitch @enabled
+sensor shr shrSwitch @enabled
+sensor ob obSwitch @enabled
+sensor cb cbSwitch @enabled
+sensor period periodSwitch @enabled
+sensor comma commaSwitch @enabled
+sensor erase eraseSwitch @enabled
+
+jump Plus equal plus true
+jump Minus equal minus true
+jump Shl equal shl true
+jump Shr equal shr true
+jump Ob equal ob true
+jump Cb equal cb true
+jump Period equal period true
+jump Comma equal comma true
+jump Erase equal erase true
+jump Start always
+
+Plus:
+	read cursorPos comCell 0
+	write 1 instructionCell cursorPos
+	control enabled plusSwitch 0
+	control enabled scrollSwitch 1
+	jump Start always
+Minus:
+	read cursorPos comCell 0
+	write 2 instructionCell cursorPos
+	control enabled minusSwitch 0
+	control enabled scrollSwitch 1
+	jump Start always
+Shl:
+	read cursorPos comCell 0
+	write 3 instructionCell cursorPos
+	control enabled shlSwitch 0
+	control enabled scrollSwitch 1
+	jump Start always
+Shr:
+	read cursorPos comCell 0
+	write 4 instructionCell cursorPos
+	control enabled shrSwitch 0
+	control enabled scrollSwitch 1
+	jump Start always
+Ob:
+	read cursorPos comCell 0
+	write 5 instructionCell cursorPos
+	control enabled obSwitch 0
+	control enabled scrollSwitch 1
+	jump Start always
+Cb:
+	read cursorPos comCell 0
+	write 6 instructionCell cursorPos
+	control enabled cbSwitch 0
+	control enabled scrollSwitch 1
+	jump Start always
+Period:
+	read cursorPos comCell 0
+	write 7 instructionCell cursorPos
+	control enabled periodSwitch 0
+	control enabled scrollSwitch 1
+	jump Start always
+Comma:
+	read cursorPos comCell 0
+	write 8 instructionCell cursorPos
+	control enabled commaSwitch 0
+	control enabled scrollSwitch 1
+	jump Start always
+Erase:
+	read cursorPos comCell 0
+	write 0 instructionCell cursorPos
+	control enabled eraseSwitch 0
+	control enabled scrollSwitch 1
+	jump Start always

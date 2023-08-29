@@ -1,0 +1,111 @@
+set spawnX 10
+set spawnY 10
+
+setrate 500
+
+#set failedSpawns 0
+
+WaitLoop:
+jump WaitLoop greaterThan @waveTime 0.1
+
+set credits 49
+
+SpawnLoop:
+	
+	op rand unitId 21
+	op floor unitId unitId
+	#op add unitId unitId failedSpawns
+
+	set unitIndex unitId
+	op add unitArrayReturn @counter 1
+	jump UnitCost always
+	
+	jump SpawnSuccess greaterThanEq credits unitCost
+	jump SpawnFail always
+	
+	SpawnSuccess:
+		op sub credits credits unitCost
+		spawn unitType spawnX spawnY 0 @crux unitRef
+	#jump SpawnCheckExit always
+	SpawnFail:
+	#	op lessThan check failedSpawns 14
+	#	op add failedSpawns failedSpawns check
+	#SpawnCheckExit:
+
+jump SpawnLoop greaterThan credits 0
+
+wait 2
+end
+
+UnitCost: #function to get the cost and type of a unit
+op mul arrayJumpPos unitIndex 3
+op add arrayJumpPos arrayJumpPos @counter
+op add arrayJumpPos arrayJumpPos 2
+set @counter arrayJumpPos
+
+set unitType @corvus
+set unitCost 100
+set @counter unitArrayReturn
+set unitType @reign
+set unitCost 95
+set @counter unitArrayReturn
+set unitType @toxopid
+set unitCost 90
+set @counter unitArrayReturn
+set unitType @oct
+set unitCost 90
+set @counter unitArrayReturn
+set unitType @eclipse
+set unitCost 90
+set @counter unitArrayReturn
+set unitType @quad
+set unitCost 80
+set @counter unitArrayReturn
+set unitType @vela
+set unitCost 75
+set @counter unitArrayReturn
+set unitType @antumbra
+set unitCost 70
+set @counter unitArrayReturn
+set unitType @arkyid
+set unitCost 65
+set @counter unitArrayReturn
+set unitType @scepter
+set unitCost 60
+set @counter unitArrayReturn
+set unitType @quasar
+set unitCost 55
+set @counter unitArrayReturn
+set unitType @spiroct
+set unitCost 40
+set @counter unitArrayReturn
+set unitType @fortress
+set unitCost 35
+set @counter unitArrayReturn
+set unitType @zenith
+set unitCost 35
+set @counter unitArrayReturn
+set unitType @pulsar
+set unitCost 20
+set @counter unitArrayReturn
+set unitType @atrax
+set unitCost 20
+set @counter unitArrayReturn
+set unitType @horizon
+set unitCost 15
+set @counter unitArrayReturn
+set unitType @nova
+set unitCost 10
+set @counter unitArrayReturn
+set unitType @flare
+set unitCost 5
+set @counter unitArrayReturn
+set unitType @mace
+set unitCost 3
+set @counter unitArrayReturn
+set unitType @dagger
+set unitCost 1
+set @counter unitArrayReturn
+set unitType @crawler
+set unitCost 1
+set @counter unitArrayReturn

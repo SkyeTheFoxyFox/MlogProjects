@@ -1,0 +1,17 @@
+set PLAYER_BALL_X cell1
+set PLAYER_BALL_Y cell2
+
+fetch player player @sharded 0
+sensor flag player @flag
+jump SkipClear lessThan flag 0
+	cutscene stop
+SkipClear:
+jump 0 greaterThan flag 0
+op abs playerIndex flag
+jump 0 equal playerIndex 0
+
+read ballX PLAYER_BALL_X playerIndex
+read ballY PLAYER_BALL_Y playerIndex
+
+cutscene pan ballX ballY 0.5 0
+cutscene zoom .5

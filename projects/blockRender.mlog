@@ -1,0 +1,132 @@
+set screenSize 176
+set blockSize 16
+
+op div blockSize/2 blockSize 2
+op div screenSize screenSize blockSize
+
+read xOffset cell1 0
+read yOffset cell1 1
+
+op add screenEdgeX screenSize xOffset
+op add screenEdgeY screenSize yOffset
+
+setrate 500
+
+draw clear 0 0 0
+draw color 255 255 255
+
+Loop:
+
+	op add xRead x xOffset
+	op add yRead y yOffset
+	
+	op mul xScreen x blockSize
+	op mul yScreen y blockSize
+	op add xScreen xScreen blockSize/2
+	op add yScreen yScreen blockSize/2
+	
+	RenderBuildings:
+		getblock building block xRead yRead
+		jump end strictEqual block null
+		sensor blockX block @x
+		sensor blockY block @y
+		op floor blockX blockX
+		op floor blockY blockY
+		op equal xCheck xRead blockX
+		op equal yCheck yRead blockY
+		op land Check xCheck yCheck
+		jump end notEqual Check true
+		sensor sizeOfBlock block @size 
+		sensor blockType block @type
+		sensor blockRot block @rotation 
+		op mul blockRot blockRot 90
+		op and sizeOdd sizeOfBlock 1 
+		op sub sizeOdd sizeOdd 1
+		op abs sizeOdd sizeOdd
+		op mul sizeOdd sizeOdd blockSize/2
+		op add xScreen xScreen sizeOdd
+		op add yScreen yScreen sizeOdd
+		op mul drawSize blockSize sizeOfBlock
+		draw image xScreen yScreen blockType drawSize blockRot
+		
+	
+	
+end:
+op add x x 1
+jump Loop lessThan x screenSize
+set x 0
+op add y y 1
+jump Loop lessThan y screenSize
+set y 0
+
+
+RenderUnits:
+	fetch unitCount unitCount j
+	
+	jump DerelictColor equal j 0
+	jump ShardedColor equal j 1
+	jump CruxColor equal j 2
+	jump MalisColor equal j 3
+	jump GreenColor equal j 4
+	jump BlueColor equal j 5
+	
+	DerelictColor:
+		draw color 0x4d 0x4e 0x58
+		jump ColorEnd always
+	ShardedColor:
+		draw color 0xff 0x8e 0x6c
+		jump ColorEnd always
+	CruxColor:
+		draw color 0xf2 0x55 0x55
+		jump ColorEnd always
+	MalisColor:
+		draw color 0xa2 0x7c 0xe5
+		jump ColorEnd always
+	GreenColor:
+		draw color 0x54 0xd6 0x7d
+		jump ColorEnd always
+	BlueColor:
+		draw color 0x6c 0x87 0xfd
+		jump ColorEnd always
+ColorEnd:
+	
+RenderUnits2:
+	fetch unit targetUnit j i
+	sensor unitX targetUnit @x
+	sensor unitY targetUnit @y
+	op add unitX unitX .5
+	op add unitY unitY .5
+	op greaterThan check unitX xOffset
+	op lessThan check2 unitX screenEdgeX
+	op and checkX check check2
+	op greaterThan check unitY yOffset
+	op lessThan check2 unitY screenEdgeY
+	op and checkY check check2
+	op and check checkX checkY
+	jump UnitEnd notEqual check true
+	
+	sensor unitType targetUnit @type
+	sensor unitRot targetUnit @rotation
+	sensor unitSize targetUnit @size
+	
+	op add unitRot unitRot -90
+	
+	op sub unitX unitX xOffset
+	op sub unitY unitY yOffset
+	op mul unitX unitX blockSize
+	op mul unitY unitY blockSize
+	
+	op mul unitSize unitSize 1.5
+	op mul unitSize unitSize blockSize
+	
+	draw image unitX unitY unitType unitSize unitRot
+	
+UnitEnd:
+op add i i 1
+jump RenderUnits2 lessThan i unitCount
+set i 0
+op add j j 1
+jump RenderUnits lessThan j 6
+set j 0
+	
+drawflush display1

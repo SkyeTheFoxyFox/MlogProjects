@@ -1,0 +1,136 @@
+set display display1
+
+setrate 500
+
+set asteroidRom cell1
+set asteroidX cell3
+set asteroidY cell4
+set asteroidDX cell5
+set asteroidDY cell6
+set asteroidAngle cell7
+set asteroidSize cell8
+
+set bulletX cell9
+set bulletY cell10
+set bulletDX cell11
+set bulletDY cell12
+
+set playerRom cell2
+set playerData cell13
+
+set settings cell14
+
+read displaySize settings 0
+read asteroidCount settings 1
+read bulletCount settings 2
+
+draw clear 0 0 0
+
+
+AsteroidLoop:
+	read targetAsteroidSize asteroidSize j
+	jump DontDrawAsteroid lessThanEq targetAsteroidSize 0
+	read targetAsteroidX asteroidX j
+	read targetAsteroidY asteroidY j
+	read targetAsteroidAngle asteroidAngle j
+	
+	op idiv asteroidDrawLineCount targetAsteroidSize 4
+	op mul asteroidDrawLineCount asteroidDrawLineCount 4
+	
+	op sub tempReadAddr asteroidDrawLineCount 1
+	
+	op div asteroidDrawAngleChange 360 asteroidDrawLineCount
+
+	read dist asteroidRom tempReadAddr
+	op sub ang targetAsteroidAngle asteroidDrawAngleChange
+	op cos x ang
+	op sin y ang
+	op mul x x dist
+	op mul y y dist
+	op mul x x targetAsteroidSize
+	op mul y y targetAsteroidSize
+	op add prevX x targetAsteroidX
+	op add prevY y targetAsteroidY
+	
+	AsteroidDrawLoop:
+		op mul ang asteroidDrawAngleChange i
+		read dist asteroidRom i
+		
+		op add angleMod ang targetAsteroidAngle
+		op cos x angleMod
+		op sin y angleMod
+		op mul x x dist
+		op mul y y dist
+		op mul x x targetAsteroidSize
+		op mul y y targetAsteroidSize
+		op add x x targetAsteroidX
+		op add y y targetAsteroidY
+		
+		draw line x y prevX prevY
+		
+		set prevX x
+		set prevY y
+
+	op add i i 1
+	jump AsteroidDrawLoop lessThan i asteroidDrawLineCount
+	set i 0
+	DontDrawAsteroid:
+op add j j 1
+jump AsteroidLoop lessThan j asteroidCount
+set j 0
+
+BulletLoop:
+	read x bulletX i
+	read y bulletY i
+	draw poly x y 10 2
+op add i i 1
+jump BulletLoop lessThan i bulletCount
+set i 0
+
+Player:
+read playerX playerData 0
+read playerY playerData 1
+read playerAngle playerData 2
+read playerDead playerData 3
+
+jump SkipPlayer equal playerDead true
+
+read ang playerRom 8
+read dist playerRom 9
+
+op add ang ang playerAngle
+op cos x ang
+op sin y ang
+op mul x x dist
+op mul y y dist
+op add prevX x playerX
+op add prevY y playerY
+
+PlayerDrawLoop:
+	
+	op mul angleAddress i 2
+	op add distAddress angleAddress 1
+	
+	read ang playerRom angleAddress
+	read dist playerRom distAddress
+	
+	op add ang ang playerAngle
+	op cos x ang
+	op sin y ang
+	op mul x x dist
+	op mul y y dist
+	op add x x playerX
+	op add y y playerY
+	
+	draw line x y prevX prevY
+	
+	set prevX x
+	set prevY y
+	
+op add i i 1
+jump PlayerDrawLoop lessThan i 5
+set i 0
+
+SkipPlayer:
+
+drawflush display

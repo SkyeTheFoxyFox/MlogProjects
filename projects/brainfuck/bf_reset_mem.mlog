@@ -1,0 +1,19 @@
+
+EnableLoop:
+sensor enable switch1 @enabled
+jump EnableLoop notEqual enable true
+
+set tapeCell bank1
+set outCell bank2
+set inCell bank3
+
+set cellSize 512
+
+ResetLoop:
+	write 0 tapeCell i
+	write 0 outCell i
+	write 0 inCell i
+op add i i 1
+jump ResetLoop lessThan i cellSize
+set i 0
+control enabled switch1 0

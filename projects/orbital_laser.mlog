@@ -1,0 +1,66 @@
+setrate 500
+set SPIRAL_START_RADIUS 50
+set SPIRAL_END_RADIUS 0
+set SPIRAL_ROTATION_SPEED 100
+set SPIRAL_SHRINK_SPEED 20
+set SPIRAL_ACCELERATION_RATE 0.1
+set SPIRAL_BEAM_COUNT 3
+
+op div SPIRAL_ANGLE_DIF 360 SPIRAL_BEAM_COUNT
+op div SPIRAL_ROTATION_STEP SPIRAL_ROTATION_SPEED @ipt
+op div SPIRAL_SHRINK_STEP SPIRAL_SHRINK_SPEED @ipt
+op mul SPIRAL_ROTATION_STEP SPIRAL_ROTATION_STEP SPIRAL_BEAM_COUNT
+op mul SPIRAL_SHRINK_STEP SPIRAL_SHRINK_STEP SPIRAL_BEAM_COUNT
+
+Start:
+
+EnableLoop:
+sensor enable switch1 @enabled
+jump EnableLoop equal enable false
+
+radar player any any distance @this 1 player
+
+WaitLoop:
+sensor enable switch1 @enabled
+jump EnableLoop equal enable false
+sensor playerShooting player @shooting
+jump WaitLoop equal playerShooting false
+sensor targetX player @shootX
+sensor targetY player @shootY
+
+set spiralRadius SPIRAL_START_RADIUS
+set spiralAngle 0
+
+AnimationLoop:
+	op sub spiralRadius spiralRadius SPIRAL_SHRINK_STEP
+	op add spiralAngle spiralAngle SPIRAL_ROTATION_STEP
+	BeamLoop:
+		op mul beamAngleDif i SPIRAL_ANGLE_DIF
+		op add beamAngle spiralAngle beamAngleDif
+		op cos beamX beamAngle
+		op sin beamY beamAngle
+		op div beamY beamY 2
+		op mul beamX beamX spiralRadius
+		op mul beamY beamY spiralRadius
+		op add beamX beamX targetX
+		op add beamY beamY targetY
+		set y @maph
+		Loop:
+  			explosion @sharded beamX y -45 0 false false true
+		op sub y y 0.5
+		jump Loop greaterThan y beamY
+	op add i i 1
+	jump BeamLoop lessThan i SPIRAL_BEAM_COUNT
+	set i 0
+jump AnimationLoop greaterThan spiralRadius SPIRAL_END_RADIUS
+
+
+
+
+explosion @sharded targetX targetY 50 500 true true false
+
+wait 0
+
+control enabled switch1 false
+
+jump Start always

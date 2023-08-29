@@ -1,0 +1,6 @@
+getlink reactor i
+sensor cryo reactor @cryofluid
+op greaterThan check cryo 5
+control enabled reactor check
+op add i i 1
+op mod i i @links 
